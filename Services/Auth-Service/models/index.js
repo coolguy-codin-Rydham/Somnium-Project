@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema({
   },
   isBlocked: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
+  image: {type: String, required:true },
+  imagePublicId: { type: String, required: true },
 });
 
 const UserModel= mongoose.model("User", userSchema);

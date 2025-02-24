@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import axios from "axios";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -7,16 +8,46 @@ const Signup = () => {
     password: "",
     role: "",
     username: "",
+    image: null,
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, files } = e.target;
+    if (name === "image") {
+      setFormData({ ...formData, image: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    const formDataToSend = new FormData();
+
+    for (const key in formData) {
+      if (key === "image" && formData[key]) {
+        formDataToSend.append(key, formData[key]);
+      } else if (key !== "image") {
+        formDataToSend.append(key, formData[key]);
+      }
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/user/signup",
+        formDataToSend,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      );
+
+      console.log(response.data);
+      alert(response.data.message);
+    } catch (error) {
+      console.error(error?.response?.data || error.message || "Unknown error");
+      alert(error.response?.data?.message || "Signup failed");
+    }
   };
 
   return (
@@ -35,6 +66,7 @@ const Signup = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
+            required
             className="border rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
@@ -45,6 +77,7 @@ const Signup = () => {
             name="username"
             value={formData.username}
             onChange={handleChange}
+            required
             className="border rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
@@ -55,6 +88,7 @@ const Signup = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            required
             className="border rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
@@ -65,20 +99,35 @@ const Signup = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
+            required
             className="border rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-600">Role</label>
-          <input
-            type="text"
+          <select
             name="role"
             value={formData.role}
+            onChange={handleChange}
+            required
+            className="border rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+          >
+            <option value="">Select Role</option>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-600">Image</label>
+          <input
+            type="file"
+            name="image"
+            accept="image/*"
             onChange={handleChange}
             className="border rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-        
+
         <button
           type="submit"
           className="w-full bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 transition"

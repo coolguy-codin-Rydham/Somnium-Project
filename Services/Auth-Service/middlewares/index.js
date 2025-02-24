@@ -1,10 +1,22 @@
 import bcrypt from "bcrypt";
 import UserModel from "../models/index.js";
 import jwt from "jsonwebtoken"
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const UserSignup = async (req, res) => {
   try {
     let { name, email, password, role, username } = req.body;
+    let imageUrl = null;
+    let publicId = null;
+
+    if(req.file){
+      const result = await uploadOnCloudinary(req.file.buffer, req.file.originalname);
+      if(!result){
+        return res.status(400).json("Failed to upload image");
+      }
+      imageUrl = result.secure_url;
+      publicId = result.public_id;
+    }
 
     role = role || "learner";
 
@@ -28,6 +40,8 @@ const UserSignup = async (req, res) => {
       username,
       password: hashedPass,
       role: role,
+      imageUrl: imageUrl,
+      imagePublicId: publicId,
     });
 
     res.status(201).json({
