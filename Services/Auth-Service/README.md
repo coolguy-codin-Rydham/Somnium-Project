@@ -120,3 +120,7 @@ This API provides user authentication functionality for a web application, inclu
 This project is licensed under the MIT License. Feel free to use and modify it as needed.
 
 
+
+
+## Self Tracking
+ - Sign-up, Sign-in, and Profile Upload

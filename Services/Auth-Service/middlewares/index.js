@@ -62,6 +62,7 @@ const UserSignup = async (req, res) => {
 
 const UserSignIn = async (req, res) => {
   try {
+    console.log("I am here");
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -95,9 +96,7 @@ const UserSignIn = async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      sameSite: 'lax',
     });
 
     res.status(200).json({
@@ -117,4 +116,44 @@ const UserSignIn = async (req, res) => {
 }
 
 
-export { UserSignup, UserSignIn };
+const UserProfile = async(req, res) => {
+  try {
+    let token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ message: "No token provided. Please login." });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    const user = await User.findById(decoded.userId)
+      .select('-password'); // Exclude password from response
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Your account has been blocked." });
+    }
+
+    user.orders.populate();
+
+    res.status(200).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profileImage: user.profileImage, 
+        orderHistory : user.orders,
+      }
+    });
+  }
+  catch(e){
+    console.log("Profile Error:", e);
+
+  }
+}
+
+export { UserSignup, UserSignIn, UserProfile };
