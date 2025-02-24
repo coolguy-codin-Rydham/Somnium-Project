@@ -4,9 +4,9 @@ import Logo from '../assets/Logo.webp'
 const Navbar = () => {
     return (
       <nav className="bg-gray-800 flex justify-between items-center p-5">
-        <div className="flex justify-between">  
-          <a href="/courses" className='ml-10 text-xl mt-5'>Courses</a>
-          <a href="/courseslist" className='ml-10 text-xl'>My Courses</a>
+        <div className="flex justify-center item-center gap-10">  
+          <a href="/courses" className='text-xl'>Courses</a>
+          <a href="/courseslist" className='text-xl'>My Courses</a>
         </div>
         <a href='/' className="text-xl text-white">
           <img src={Logo} alt="LOGO" className='h-20 w-20' />
